@@ -1,85 +1,84 @@
 import PySimpleGUI as psg
 from pytube import YouTube as y
+from pathlib import Path as p
 
-class YToob:
+class Downloader:
     def __init__(self):
-        self.GUI = GUI()
-        self.l_v = self.GUI.link
-        self.yt = y(self.l_v,)
-        self.ttl = self.yt.title
-        self.aut = self.yt.author
-        self.leng = self.yt.length
+        self.link = ""
+        self.yt = None
+        self.ttl = ""
+        self.aut = ""
+        self.leng = ""
 
-    
-    def Down():
-        y.download("\Youtube Output",None,"ZZ-Downloader",True,15,3)
+    def down(self):
+        self.yt.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first().download(output_path=str(p.home() / 'Downloads'))
+        print('Downloaded!')
+        confirm = psg.popup_yes_no('Downloaded! Saved to downloads folder. Do you want to download another video?')
+        if confirm == 'Yes':
+            self.main()
+        else:
+            exit()
+        
 
-
-class GUI:
-
-    
-    def __init__(self,link):
-        self.link = link
-
-    def WelcomeScreen():
+    def welcome_screen(self):
         psg.theme('Dark Red 1')
         layout = [[psg.Text("Welcome to the GUITube Downloader!")], [psg.Button('OK')]]
         window = psg.Window('WELCOME!', layout)
-        
-        while True:
-            event = window.read()
-            if event == 'OK' or event == psg.WIN_CLOSED:
-                break
-        window.close()
-                
 
-    def getlink(self):
-        psg.theme('Dark Red 1')
-        layout = [[psg.Text('Please paste the link to the video below:')],
-                [psg.InputText()], 
-                [psg.Button('OK')]
-                ]
-        window = psg.Window('Insert Video', layout)
-        
         while True:
             event, values = window.read()
-            if event == psg.WIN_CLOSED:
+            print(values)
+            if event == 'OK':
                 window.close()
                 break
+            elif event == psg.WINDOW_CLOSED:
+                window.close()
+                exit()
+
+    def get_link(self):
+        psg.theme('Dark Red 1')
+        layout = [[psg.Text('Please paste the link to the video below:')],
+                  [psg.InputText()],
+                  [psg.Button('OK')]
+                  ]
+        window = psg.Window('Insert Video', layout)
+
+        while True:
+            event, values = window.read()
+            if event == psg.WINDOW_CLOSED:
+                window.close()
+                exit()
             elif event == 'OK':
                 self.link = values[0]
                 print(f'Link entered: {self.link}')
                 break
+        window.close()
 
-    def dwnldinterf():
+    def download_interface(self):
         psg.theme('Dark Red 1')
         layout = [[psg.Text('Title:'), psg.Text('Length of Video:'), psg.Text('Author:')],
-                  [psg.Text(YToob.ttl), psg.Text(YToob.leng), psg.Text(YToob.aut)],
+                  [psg.Text(self.ttl), psg.Text(str(self.leng)), psg.Text(self.aut)],
                   [psg.Button('Download')]]
         window = psg.Window('Downloader', layout)
 
         while True:
-            event = window.read()
+            event, _ = window.read()
             if event == 'Download':
-                YToob.Down()
+                self.down()
             else:
-                break
-
-    """def quit():
-        psg.theme('Dark Red 1')
-        layout = [[psg.Text('Are you sure you want to quit?')],
-                  [psg.Button('Yes'), psg.Button('No')]]
-        window = psg.Window('Quit?', layout)
-
-        while True:
-            event, values = window.read()
-            if event.window == 'Yes':
-                window.close_destroys_window(True)
-            else:
-                window.close()"""
-def main():
-    GUI.WelcomeScreen()
-    GUI.getlink()
-    GUI.dwnldinterf()
-main()
+                window.close()
+                exit()
     
+    def main(self):
+        self.welcome_screen()
+        self.get_link()
+        self.yt = y(self.link)
+        self.ttl = self.yt.title
+        self.aut = self.yt.author
+        self.leng = self.yt.length
+        self.download_interface()
+
+
+if __name__ == '__main__':
+    downloader = Downloader()
+    downloader.main()
