@@ -1,5 +1,5 @@
-import PySimpleGUI as psg
-from pytube import YouTube as y
+import FreeSimpleGUI as psg
+from pytubefix import YouTube as y
 from pathlib import Path as p
 
 class Downloader:

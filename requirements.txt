@@ -1,2 +1,2 @@
-pytube
-pysimplegui
+pytubefix
+FreeSimpleGUI
